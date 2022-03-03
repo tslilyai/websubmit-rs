@@ -4,6 +4,9 @@ pub use mysql::Value;
 use mysql::*;
 use std::collections::HashMap;
 use sqlparser::ast::*;
+use funhouse::FunhouseClient;
+
+const MIRROR_ID : u64 = 13;
 
 pub struct MySqlBackend {
     pub handle: mysql::Conn,
@@ -23,6 +26,10 @@ impl MySqlBackend {
         };
 
         let schema = std::fs::read_to_string("src/schema.sql")?;
+        let mirror_json = std::fs::read_to_string("src/mirror.json")?;
+
+        let mut funhouse = FunhouseClient::new("root", "password", "127.0.0.1", dbname);
+        funhouse.start_mirror(MIRROR_ID, &mirror_json);
 
         // connect to everything
         debug!(
